@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Booking Status - SIH26032</title>
+    <style>
+        :root {
+            --navy: #0B3558;
+            --navy-dark: #082741;
+            --saffron: #FF9933;
+            --green: #128807;
+            --gold: #B8860B;
+            --bg: #F2F4F6;
+            --ink: #1A1A1A;
+            --muted: #5a6472;
+            --border: #d9dee3;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0; padding: 0; color: var(--ink);
+            background: linear-gradient(rgba(242, 244, 246, 0.05), rgba(242, 244, 246, 0.05)), url('./farmer.jpg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+        }
+        header { background: var(--navy); color: white; padding: 1.4rem 1.5rem; text-align: center; border-bottom: 4px solid var(--saffron); }
+        header h1 { margin: 0; font-family: Georgia, serif; font-size: 24px; }
+        nav { background-color: var(--navy-dark); padding: 0.7rem 1rem; text-align: center; }
+        nav a { color: white; margin: 0 12px; text-decoration: none; font-weight: bold; font-size: 14px; }
+        nav a:hover { color: var(--saffron); }
+
+        .container {
+            max-width: 650px; margin: 2.5rem auto; background: white; padding: 2rem;
+            border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-box input {
+            flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 15px;
+        }
+        .search-box button {
+            padding: 12px 20px; background: var(--navy); color: white; border: none;
+            border-radius: 4px; font-weight: bold; cursor: pointer;
+        }
+        .search-box button:hover { background: var(--navy-dark); }
+
+        .result-card {
+            display: none; border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem;
+            background: #fafbfc; margin-top: 1.5rem;
+        }
+        .result-card h3 { margin-top: 0; color: var(--navy); border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+        .detail-row strong { color: var(--navy); }
+
+        .status-badge {
+            display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase;
+        }
+        .status-badge.pending { background: #fdebd0; color: #b9770e; }
+        .status-badge.verified { background: #d6eaf8; color: #2471a3; }
+        .status-badge.completed { background: #eafaf1; color: #1e7e45; }
+
+        .btn-reschedule {
+            background-color: var(--saffron); color: #fff; border: none; padding: 8px 14px;
+            border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; margin-top: 10px;
+        }
+        .btn-reschedule:hover { background-color: #e67e22; }
+
+        .error-msg { color: #c0392b; font-weight: bold; display: none; text-align: center; margin-top: 15px; }
+    </style> 
+    
+</head>
+<body>
+
+<header>
+    <h1>🌾 Agri-Procurement — Track Booking Status</h1>
+</header>
+
+<nav>
+    <a href="./home.html">Home</a>
+    <a href="./bookslot.html">Book Slot</a>
+    <a href="./track.html">Track Status</a>
+    <a href="./farmerlogin.html">Farmer Login</a>
+    <a href="./admin.html">Admin Login</a>
+</nav>
+
+<div class="container">
+    <h2 style="color: var(--navy); font-size: 20px; margin-top: 0; text-align: center;">Enter Tracking ID or Mobile Number</h2>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="e.g. AGRI-7K9L2M or 9876543210" required>
+        <button type="button" id="searchBtn">Track Slot</button>
+    </div>
+
+    <div class="error-msg" id="errorMsg">No active booking found with this ID or Number.</div>
+
+    <div class="result-card" id="resultCard">
+        <h3>Booking Details</h3>
+        <div class="detail-row">
+            <span>Tracking ID:</span>
+            <strong id="resTrackingId">-</strong>
+        </div>
+        <div class="detail-row">
+            <span>Farmer Name:</span>
+            <strong id="resName">-</strong>
+        </div>
+        <div class="detail-row">
+            <span>Crop:</span>
+            <strong id="resCrop">-</strong>
+        </div>
+        <div class="detail-row">
+            <span>Procurement Centre:</span>
+            <strong id="resCentre">-</strong>
+        </div>
+        <div class="detail-row">
+            <span>Assigned Buyer / Officer:</span>
+            <strong id="resBuyer">-</strong>
+        </div>
+        <div class="detail-row">
+            <span>Scheduled Date:</span>
+            <strong id="resDate">-</strong>
+        </div>
+        <div class="detail-row">
+            <span>Current Status:</span>
+            <span id="resStatus" class="status-badge pending">Pending</span>
+        </div>
+        <div class="detail-row" id="weighingRow" style="display:none;">
+            <span>Weighed Quantity:</span>
+            <strong id="resWeighing" style="color: var(--green);">-</strong>
+        </div>
+
+        <div style="text-align: right; margin-top: 15px;">
+            <button type="button" class="btn-reschedule" id="rescheduleBtn">📅 Reschedule Slot Date</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBXvqBMcpFDPH4cDtHwaZ4JaitOR7WYkQ0",
+        authDomain: "agri-procurement-portal.firebaseapp.com",
+        projectId: "agri-procurement-portal",
+        storageBucket: "agri-procurement-portal.firebasestorage.app",
+        messagingSenderId: "242878167825",
+        appId: "1:242878167825:web:dc992767d97bd815492ab0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let activeBookingDocId = null;
+    let activeBookingData = null;
+
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resultCard = document.getElementById('resultCard');
+    const errorMsg = document.getElementById('errorMsg');
+    const rescheduleBtn = document.getElementById('rescheduleBtn');
+
+    // 1. Search Function (by Tracking ID or Phone Number)
+    async function searchBooking() {
+        const queryTerm = searchInput.value.trim().toUpperCase();
+        if (!queryTerm) return;
+
+        errorMsg.style.display = 'none';
+        resultCard.style.display = 'none';
+
+        try {
+            const bookingsRef = collection(db, "bookings");
+            
+            // Query 1: Tracking ID se check karo
+            let q = query(bookingsRef, where("trackingId", "==", queryTerm));
+            let querySnap = await getDocs(q);
+
+            // Query 2: Agar nahi mila toh Phone number se check karo
+            if (querySnap.empty) {
+                q = query(bookingsRef, where("phone", "==", queryTerm.toLowerCase()));
+                querySnap = await getDocs(q);
+            }
+
+            if (querySnap.empty) {
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Document display setup
+            const docSnap = querySnap.docs[0];
+            activeBookingDocId = docSnap.id;
+            activeBookingData = docSnap.data();
+
+            document.getElementById('resTrackingId').textContent = activeBookingData.trackingId || docSnap.id.slice(0, 8).toUpperCase();
+            document.getElementById('resName').textContent = activeBookingData.name || 'N/A';
+            document.getElementById('resCrop').textContent = activeBookingData.crop || 'Wheat';
+            document.getElementById('resCentre').textContent = activeBookingData.centreName || activeBookingData.center || 'Bareilly Centre';
+            document.getElementById('resBuyer').textContent = activeBookingData.buyerName || 'Assigned Licensed Buyer';
+            document.getElementById('resDate').textContent = activeBookingData.date || 'N/A';
+
+            const statusBadge = document.getElementById('resStatus');
+            const currentStatus = activeBookingData.status || 'pending';
+            statusBadge.className = `status-badge ${currentStatus}`;
+            statusBadge.textContent = currentStatus.toUpperCase();
+
+            // Weighing Display (if available)
+            const weighingRow = document.getElementById('weighingRow');
+            if (activeBookingData.weighingRecord && activeBookingData.weighingRecord.quantity) {
+                weighingRow.style.display = 'flex';
+                document.getElementById('resWeighing').textContent = `${activeBookingData.weighingRecord.quantity} Quintals (Verified)`;
+                rescheduleBtn.style.display = 'none'; // Agar weigh ho chuka hai toh reschedule band
+            } else {
+                weighingRow.style.display = 'none';
+                rescheduleBtn.style.display = 'inline-block';
+            }
+
+            resultCard.style.display = 'block';
+
+        } catch (error) {
+            console.error("Tracking error:", error);
+            errorMsg.textContent = "Error fetching tracking details. Please try again.";
+            errorMsg.style.display = 'block';
+        }
+    }
+
+    searchBtn.addEventListener('click', searchBooking);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') searchBooking();
+    });
+
+    // 2. Reschedule Slot Logic
+    rescheduleBtn.addEventListener('click', async () => {
+        if (!activeBookingDocId || !activeBookingData) return;
+
+        const newDate = prompt(`Current Date: ${activeBookingData.date}\nEnter your new preferred date (YYYY-MM-DD):`);
+        if (!newDate) return;
+
+        const today = new Date().toISOString().split('T')[0];
+        if (newDate < today) {
+            alert("❌ Past date cannot be selected. Please choose a future date.");
+            return;
+        }
+
+        try {
+            const bookingRef = doc(db, "bookings", activeBookingDocId);
+            await updateDoc(bookingRef, {
+                date: newDate,
+                rescheduledAt: serverTimestamp(),
+                status: "pending"
+            });
+
+            alert(`✅ Slot successfully rescheduled to ${newDate}!`);
+            document.getElementById('resDate').textContent = newDate;
+            activeBookingData.date = newDate;
+
+        } catch (err) {
+            console.error("Reschedule error:", err);
+            alert("Failed to reschedule slot. Please try again.");
+        }
+    });
+</script>
+</body>
+</html>

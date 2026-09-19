@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SIH26032</title>
+    <style>
+        :root {
+            --navy: #0B3558;
+            --navy-dark: #082741;
+            --saffron: #FF9933;
+            --green: #128807;
+            --gold: #B8860B;
+            --bg: #F2F4F6;
+            --ink: #1A1A1A;
+            --muted: #5a6472;
+            --border: #d9dee3;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--ink, #1A1A1A);
+            background: linear-gradient(rgba(242, 244, 246, 0.25), rgba(242, 244, 246, 0.25)), 
+                        url('./farmer.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        a { color: inherit; }
+
+        .skip-link { position: absolute; left: -999px; top: 0; background: var(--navy); color: white; padding: 8px 16px; z-index: 1000; }
+        .skip-link:focus { left: 10px; top: 10px; }
+
+        .gov-utility-bar {
+            background: var(--navy-dark); color: #cfe0ee; font-size: 12px; padding: 6px 20px;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+        }
+        .gov-utility-bar .left, .gov-utility-bar .right { display: flex; align-items: center; gap: 14px; }
+        .gov-utility-bar a { text-decoration: none; color: #cfe0ee; }
+        .gov-utility-bar a:hover { color: #FFD699; text-decoration: underline; }
+        .text-size-group button {
+            background: transparent; border: 1px solid #4a6a85; color: #cfe0ee;
+            width: 22px; height: 22px; line-height: 1; border-radius: 3px; cursor: pointer; font-size: 11px;
+        }
+        .text-size-group button:hover { background: #4a6a85; }
+
+        .tricolor-strip { height: 5px; display: flex; }
+        .tricolor-strip div { flex: 1; }
+        .tricolor-strip .saffron { background-color: #FF9933; }
+        .tricolor-strip .white { background-color: #FFFFFF; }
+        .tricolor-strip .green { background-color: #128807; }
+
+        header { background: var(--navy); color: white; padding: 1.4rem 1.5rem 1.1rem; border-bottom: 4px solid var(--saffron); }
+        .header-content { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; max-width: 980px; margin: 0 auto; position: relative; }
+        .header-emblem { width: 64px; height: 64px; flex-shrink: 0; }
+        .header-text { text-align: center; }
+        .header-text .gov-label { font-size: 12px; letter-spacing: 0.4px; color: #cfe0ee; margin: 0 0 2px; }
+        .header-text h1 { margin: 0; font-family: Georgia, serif; font-size: 26px; font-weight: 700; }
+        .header-text p { margin: 4px 0 0; font-size: 13px; }
+        .header-text p a { text-decoration: underline; }
+        .header-tagline { text-align: center; font-size: 13px; color: #FFE8B8; font-style: italic; margin-top: 10px; }
+
+        .header-account { position: absolute; top: 0; right: 10px; padding-bottom: 15px; }
+        .header-login-icon {
+            width: 40px; height: 40px; background-color: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;
+        }
+        .header-account:hover .header-login-icon { background-color: var(--saffron, #FF9933); border-color: var(--saffron, #FF9933); }
+        .header-login-icon svg { width: 20px; height: 20px; fill: white; }
+
+        .account-dropdown {
+            display: none; position: absolute; top: 45px; right: -20px; background: #ffffff;
+            border-radius: 6px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); min-width: 230px;
+            z-index: 1000; border: 1px solid var(--border, #d9dee3); animation: fadeIn 0.15s ease-in-out;
+        }
+        .header-account:hover .account-dropdown { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        nav { background-color: var(--navy-dark); padding: 0.7rem 1rem; text-align: center; }
+        nav a { color: white; margin: 0 14px; text-decoration: none; font-weight: bold; font-size: 14px; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+        nav a:hover { border-bottom: 2px solid var(--saffron); }
+
+        #langSwitcher {
+            width: auto; display: inline-block; padding: 4px 8px; font-size: 13px; font-weight: bold;
+            border: 1px solid #4a6a85; border-radius: 4px; background-color: var(--navy-dark); color: white;
+            margin-left: 15px; cursor: pointer;
+        }
+
+        .side-ribbon {
+            position: fixed; top: 50%; right: 0; transform: translateY(-50%);
+            background: linear-gradient(180deg, var(--green), #0f6c05); color: #fff;
+            padding: 16px 8px; font-size: 13px; font-weight: bold; letter-spacing: 0.3px;
+            border-radius: 8px 0 0 8px; box-shadow: -2px 2px 8px rgba(0,0,0,0.25);
+            white-space: nowrap; writing-mode: vertical-rl; text-orientation: mixed; max-height: 70vh; z-index: 50;
+        }
+        @media (max-width: 900px) { .side-ribbon { display: none; } }
+
+        .dashboard-container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
+        .dashboard-header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 1.5rem; }
+        .dashboard-container h2 { color: var(--navy); font-family: Georgia, serif; font-size: 24px; margin: 0; }
+
+        .officer-info-card {
+            background: white; border-left: 4px solid var(--navy); padding: 12px 18px;
+            border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex;
+            align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1.5rem;
+        }
+        .officer-info-card .detail-item { font-size: 13px; color: var(--muted); }
+        .officer-info-card .detail-item strong { color: var(--navy); font-size: 14px; }
+        .officer-info-card .badge-centre {
+            background-color: #e8f4fd; color: #1a5276; padding: 4px 10px;
+            border-radius: 4px; font-weight: bold; font-size: 13px;
+        }
+
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 1.5rem 0 2rem; }
+        .summary-card {
+            background: white; padding: 1.2rem; border-radius: 6px; border: 1px solid var(--border);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.06); text-align: center;
+        }
+        .summary-card .count { font-size: 24px; font-weight: bold; color: var(--navy); }
+        .summary-card .label { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 500; }
+        .summary-card.total { border-top: 3px solid var(--navy); }
+        .summary-card.pending { border-top: 3px solid var(--saffron); }
+        .summary-card.pending .count { color: #d35400; }
+        .summary-card.verified { border-top: 3px solid #2980b9; }
+        .summary-card.verified .count { color: #2980b9; }
+        .summary-card.completed { border-top: 3px solid var(--green); }
+        .summary-card.completed .count { color: var(--green); }
+        .summary-card.payout { border-top: 3px solid #8e44ad; }
+        .summary-card.payout .count { color: #8e44ad; }
+
+        .dashboard-container h3 { color: var(--navy); font-family: Georgia, serif; margin-top: 2rem; font-size: 18px; }
+
+        .bookings-table {
+            width: 100%; border-collapse: collapse; background: white; border-radius: 6px;
+            overflow: hidden; border: 1px solid var(--border); box-shadow: 0 4px 8px rgba(0,0,0,0.06); margin-top: 1rem;
+        }
+        .bookings-table th, .bookings-table td { padding: 12px 12px; text-align: left; font-size: 13px; }
+        .bookings-table th { background-color: var(--navy); color: white; font-weight: bold; }
+        .bookings-table tr:nth-child(even) { background-color: var(--bg); }
+        
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .status-badge.pending { background-color: #fdebd0; color: #b9770e; }
+        .status-badge.verified { background-color: #d6eaf8; color: #2471a3; }
+        .status-badge.completed { background-color: #eafaf1; color: #1e7e45; }
+
+        .pay-badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .pay-badge.paid { background-color: #d4efdf; color: #196f3d; }
+        .pay-badge.unpaid { background-color: #fadbd8; color: #943126; }
+
+        .add-weighing-btn, .add-payment-btn {
+            background-color: var(--navy); color: white; border: none; padding: 5px 10px;
+            border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;
+        }
+        .add-payment-btn { background-color: #8e44ad; }
+        .add-payment-btn:hover { background-color: #6c3483; }
+        .add-weighing-btn:hover { background-color: var(--navy-dark); }
+
+        .status-select-btn {
+            padding: 4px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;
+            border: 1px solid var(--border); background-color: #fff; cursor: pointer;
+        }
+
+        footer {
+            text-align: center; padding: 1.2rem; color: var(--muted); font-size: 13px;
+            background: white; border-top: 3px solid var(--saffron); margin-top: 3rem;
+        }
+    </style>
+    <script src="./i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<div class="gov-utility-bar">
+    <div class="left">
+        <span>भारत सरकार | Government of India</span>
+        <a href="#main-content">Skip to Main Content</a>
+    </div>
+    <div class="right">
+        <span class="text-size-group">
+            <button type="button" onclick="document.body.style.fontSize='14px'">A-</button>
+            <button type="button" onclick="document.body.style.fontSize='16px'">A</button>
+            <button type="button" onclick="document.body.style.fontSize='18px'">A+</button>
+        </span>
+        <a href="https://www.india.gov.in/" target="_blank" rel="noopener">india.gov.in</a>
+    </div>
+</div>
+<div class="tricolor-strip">
+    <div class="saffron"></div>
+    <div class="white"></div>
+    <div class="green"></div>
+</div>
+
+<div class="side-ribbon">🌾 किसान ही महान है — No Farmer, No Food 🌾</div>
+
+<header>
+    <div class="header-content">
+        <svg class="header-emblem" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="National Emblem of India">
+            <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#FF9933" stroke-width="2.5"/>
+            <circle cx="50" cy="50" r="43" fill="none" stroke="#0B3558" stroke-width="1"/>
+            <rect x="27" y="70" width="46" height="4" rx="1" fill="#0B3558"/>
+            <rect x="30" y="66" width="40" height="4" fill="#0B3558"/>
+            <circle cx="36" cy="68" r="2.4" fill="none" stroke="#0B3558" stroke-width="0.8"/>
+            <circle cx="50" cy="68" r="2.4" fill="none" stroke="#0B3558" stroke-width="0.8"/>
+            <circle cx="64" cy="68" r="2.4" fill="none" stroke="#0B3558" stroke-width="0.8"/>
+            <g fill="#B8860B">
+                <path d="M50,20 C45,20 41,25 41,31 C41,37 44,41 44,45 L56,45 C56,41 59,37 59,31 C59,25 55,20 50,20 Z"/>
+                <path d="M44,45 C42,48 41,52 41,58 L47,58 C47,53 48,48 50,45 Z"/>
+                <path d="M56,45 C58,48 59,52 59,58 L53,58 C53,53 52,48 50,45 Z"/>
+                <path d="M32,34 C29,36 27,40 27,45 C27,50 30,53 33,55 L38,50 C36,48 35,46 35,43 C35,39 37,36 40,34 Z"/>
+                <path d="M68,34 C71,36 73,40 73,45 C73,50 70,53 67,55 L62,50 C64,48 65,46 65,43 C65,39 63,36 60,34 Z"/>
+            </g>
+            <circle cx="50" cy="60" r="4" fill="none" stroke="#0B3558" stroke-width="1.1"/>
+            <text x="50" y="90" text-anchor="middle" font-size="6.5" font-weight="bold" fill="#0B3558" font-family="Georgia, serif">SATYAMEVA JAYATE</text>
+        </svg>
+        <div class="header-text">
+            <p class="gov-label">Government of India</p>
+            <h1 data-i18n="header_title">Agri-Procurement Portal</h1>
+            <p><a href="https://consumeraffairs.gov.in/" data-i18n="dept_link">Department of Consumer Affairs</a></p>
+        </div>
+        <div class="header-account">
+            <button class="header-login-icon" id="accountIconBtn" title="Account">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.3 0-9.8 1.6-9.8 4.9v2.4h19.6v-2.4c0-3.3-6.5-4.9-9.8-4.9z"/>
+                </svg>
+            </button>
+            <div class="account-dropdown" id="accountDropdown"></div>
+        </div>
+    </div>
+    <div class="header-tagline" data-i18n="header_tagline">🌾 No Farmer, No Food — किसान ही महान है 🌾</div>
+</header>
+
+<nav>
+    <a href="./home.html" data-i18n="nav_home">Home</a>
+    <a href="./bookslot.html" data-i18n="nav_book">Book Slot</a>
+    <a href="./track.html" data-i18n="nav_track">Track Status</a>
+    <a href="./farmerlogin.html" data-i18n="nav_farmer">Farmer Login</a>
+    <a href="./admin.html" data-i18n="nav_admin">Admin Login</a>
+    <a href="./farmer-dashboard.html" data-i18n="nav_farmer_dashboard">My Dashboard</a>
+    <a href="./admin-dashboard.html" data-i18n="nav_admin_dashboard">Admin Dashboard</a>
+    <select id="langSwitcher" onchange="setLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="hi">हिंदी</option>
+    </select>
+</nav>
+
+<main id="main-content">
+    <div class="dashboard-container">
+        <div class="dashboard-header-flex">
+            <h2 data-i18n="dashboard_title">Admin Dashboard</h2>
+        </div>
+
+        <!-- Assigned Centre / Officer Info Box -->
+        <div class="officer-info-card" id="officerInfoCard">
+            <div class="detail-item">Procurement Officer: <strong id="officerNameDisplay">Loading...</strong></div>
+            <div class="detail-item">License: <strong id="officerLicenseDisplay">-</strong></div>
+            <div class="badge-centre" id="officerCentreDisplay">Centre: Loading...</div>
+        </div>
+
+        <!-- Summary Cards Grid -->
+        <div class="summary-cards">
+            <div class="summary-card total">
+                <div class="count" id="totalCount">0</div>
+                <div class="label" data-i18n="stat_total">Total Bookings</div>
+            </div>
+            <div class="summary-card pending">
+                <div class="count" id="pendingCount">0</div>
+                <div class="label" data-i18n="stat_pending">Pending Slots</div>
+            </div>
+            <div class="summary-card verified">
+                <div class="count" id="verifiedCount">0</div>
+                <div class="label" data-i18n="stat_verified">Verified</div>
+            </div>
+            <div class="summary-card completed">
+                <div class="count" id="completedCount">0</div>
+                <div class="label" data-i18n="stat_completed">Completed</div>
+            </div>
+            <div class="summary-card payout">
+                <div class="count" id="totalPayoutDisbursed">₹0</div>
+                <div class="label">Total Payout Disbursed</div>
+            </div>
+        </div>
+
+        <!-- Analytics Charts Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 2rem;">
+            <div style="background: white; padding: 1.2rem; border-radius: 6px; border: 1px solid var(--border); box-shadow: 0 4px 8px rgba(0,0,0,0.06);">
+                <h4 style="margin: 0 0 12px; color: var(--navy); font-size: 15px; text-align: center;">🌾 Crop Distribution</h4>
+                <div style="position: relative; height: 220px;">
+                    <canvas id="cropChart"></canvas>
+                </div>
+            </div>
+
+            <div style="background: white; padding: 1.2rem; border-radius: 6px; border: 1px solid var(--border); box-shadow: 0 4px 8px rgba(0,0,0,0.06);">
+                <h4 style="margin: 0 0 12px; color: var(--navy); font-size: 15px; text-align: center;">📊 Slot Status Overview</h4>
+                <div style="position: relative; height: 220px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <h3 data-i18n="recent_bookings_title">Recent Bookings (Your Centre)</h3>
+        <table class="bookings-table">
+            <thead>
+                <tr>
+                    <th data-i18n="col_name">Farmer Name</th>
+                    <th data-i18n="col_crop">Crop</th>
+                    <th data-i18n="col_date">Date</th>
+                    <th data-i18n="col_status">Status</th>
+                    <th data-i18n="col_weighing">Weighing (Qtl)</th>
+                    <th>Payment Record</th>
+                    <th>Update Status</th>
+                </tr>
+            </thead>
+            <tbody id="bookingsTableBody"></tbody>
+        </table>
+    </div>
+</main>
+
+<footer>
+    <p>SIH26032 &mdash; Smart India Hackathon Project</p>
+    <p>© Government of India | Department of Consumer Affairs</p>
+</footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBXvqBMcpFDPH4cDtHwaZ4JaitOR7WYkQ0",
+        authDomain: "agri-procurement-portal.firebaseapp.com",
+        projectId: "agri-procurement-portal",
+        storageBucket: "agri-procurement-portal.firebasestorage.app",
+        messagingSenderId: "242878167825",
+        appId: "1:242878167825:web:dc992767d97bd815492ab0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const MAX_SEASON_LIMIT_QTL = 50;
+    
+    // Dynamic Fallback MSP Rates (₹ per quintal)
+    let dynamicMspRates = {
+        Wheat: 2585,
+        Rice: 2441,
+        Pulses: 8450
+    };
+
+    let currentAdminData = null;
+    let cropChartInstance = null;
+    let statusChartInstance = null;
+
+    // Load Live MSP Rates from Firestore
+    async function fetchLiveMsp() {
+        try {
+            const mspSnap = await getDoc(doc(db, "settings", "mspRates"));
+            if (mspSnap.exists()) {
+                const data = mspSnap.data();
+                dynamicMspRates = { ...dynamicMspRates, ...data };
+            }
+        } catch (e) {
+            console.log("Using default fallback MSP rates");
+        }
+    }
+
+    onAuthStateChanged(auth, async function(user) {
+        if (!user) {
+            alert("Access denied. Please login as admin.");
+            window.location.href = './admin.html';
+            return;
+        }
+
+        try {
+            await fetchLiveMsp();
+
+            const adminDocRef = doc(db, "admins", user.uid);
+            const adminDocSnap = await getDoc(adminDocRef);
+
+            const isHardcodedAdmin = user.email === "admin@sih26032.com";
+            const isRegisteredAdmin = adminDocSnap.exists();
+
+            if (isHardcodedAdmin) {
+                currentAdminData = {
+                    uid: user.uid,
+                    name: "Super Admin",
+                    licenseNumber: "SUPER-ADMIN-01",
+                    centreName: "All Procurement Centres",
+                    centreId: "ALL",
+                    isSuper: true
+                };
+            } else if (isRegisteredAdmin) {
+                currentAdminData = { uid: user.uid, ...adminDocSnap.data(), isSuper: false };
+            } else {
+                alert("Access denied. Please login with authorized Admin credentials.");
+                window.location.href = './admin.html';
+                return;
+            }
+
+            document.getElementById('officerNameDisplay').textContent = currentAdminData.name || user.email;
+            document.getElementById('officerLicenseDisplay').textContent = currentAdminData.licenseNumber || 'Verified Officer';
+            document.getElementById('officerCentreDisplay').textContent = `📍 Centre: ${currentAdminData.centreName || 'Assigned Mandi'}`;
+
+            loadDashboard(user.uid);
+        } catch (error) {
+            console.error("Admin verification error:", error);
+            alert("Access error. Redirecting to login...");
+            window.location.href = './admin.html';
+        }
+    });
+
+    function renderAnalyticsCharts(bookings) {
+        if (typeof Chart === 'undefined') return;
+
+        const cropCounts = { Wheat: 0, Rice: 0, Pulses: 0, Other: 0 };
+        bookings.forEach(b => {
+            const crop = b.crop || 'Wheat';
+            if (cropCounts[crop] !== undefined) {
+                cropCounts[crop]++;
+            } else {
+                cropCounts.Other++;
+            }
+        });
+
+        const pending = bookings.filter(b => (b.status || "pending") === "pending").length;
+        const verified = bookings.filter(b => b.status === "verified").length;
+        const completed = bookings.filter(b => b.status === "completed").length;
+
+        const cropCanvas = document.getElementById('cropChart');
+        if (cropCanvas) {
+            const ctxCrop = cropCanvas.getContext('2d');
+            if (cropChartInstance) cropChartInstance.destroy();
+            cropChartInstance = new Chart(ctxCrop, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Wheat', 'Rice', 'Pulses', 'Other'],
+                    datasets: [{
+                        data: [cropCounts.Wheat, cropCounts.Rice, cropCounts.Pulses, cropCounts.Other],
+                        backgroundColor: ['#f39c12', '#27ae60', '#8e44ad', '#95a5a6'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        const statusCanvas = document.getElementById('statusChart');
+        if (statusCanvas) {
+            const ctxStatus = statusCanvas.getContext('2d');
+            if (statusChartInstance) statusChartInstance.destroy();
+            statusChartInstance = new Chart(ctxStatus, {
+                type: 'bar',
+                data: {
+                    labels: ['Pending', 'Verified', 'Completed'],
+                    datasets: [{
+                        label: 'Bookings',
+                        data: [pending, verified, completed],
+                        backgroundColor: ['#e67e22', '#2980b9', '#128807'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+    }
+
+    async function loadDashboard(adminUid) {
+        try {
+            let q;
+            if (currentAdminData && currentAdminData.isSuper) {
+                q = collection(db, "bookings");
+            } else {
+                q = query(
+                    collection(db, "bookings"),
+                    where("assignedAdminUid", "==", adminUid)
+                );
+            }
+
+            const querySnapshot = await getDocs(q);
+            const bookings = [];
+            let totalDisbursedAmt = 0;
+
+            querySnapshot.forEach(function(docSnap) {
+                const data = docSnap.data();
+                bookings.push({ ...data, id: docSnap.id });
+
+                if (data.paymentRecord && data.paymentRecord.status === "paid" && data.paymentRecord.amount) {
+                    totalDisbursedAmt += Number(data.paymentRecord.amount);
+                }
+            });
+
+            const total = bookings.length;
+            const pending = bookings.filter(b => (b.status || "pending") === "pending").length;
+            const verified = bookings.filter(b => b.status === "verified").length;
+            const completed = bookings.filter(b => b.status === "completed").length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('verifiedCount').textContent = verified;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('totalPayoutDisbursed').textContent = `₹${totalDisbursedAmt.toLocaleString('en-IN')}`;
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayBookingsCount = bookings.filter(b => b.date === todayStr).length;
+            document.getElementById('officerCentreDisplay').textContent = `📍 Centre: ${currentAdminData.centreName || 'Bareilly Centre'} | 👥 Today's Queue: ${todayBookingsCount}`;
+
+            renderAnalyticsCharts(bookings);
+
+            const tbody = document.getElementById('bookingsTableBody');
+            tbody.innerHTML = '';
+
+            if (bookings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--muted);">No bookings assigned to your centre yet.</td></tr>`;
+                return;
+            }
+
+            bookings.forEach(function(b) {
+                const row = document.createElement('tr');
+                const weighingDisplay = b.weighingRecord
+                    ? `<strong>${b.weighingRecord.quantity} qtl</strong>`
+                    : `<button class="add-weighing-btn" data-doc-id="${b.id}" data-farmer-phone="${b.phone || ''}" data-farmer-name="${b.name}" data-crop="${b.crop || 'Wheat'}">+ Weighing</button>`;
+
+                // Payment Status & Quick Action Display
+                let paymentDisplay = '';
+                if (b.paymentRecord && b.paymentRecord.status === 'paid') {
+                    paymentDisplay = `
+                        <span class="pay-badge paid">PAID ₹${Number(b.paymentRecord.amount).toLocaleString('en-IN')}</span><br>
+                        <small style="color:var(--muted);">Ref: ${b.paymentRecord.utr || 'Direct'}</small>
+                    `;
+                } else if (b.weighingRecord && b.weighingRecord.quantity) {
+                    const rate = dynamicMspRates[b.crop] || 2585;
+                    const estAmount = Math.round(Number(b.weighingRecord.quantity) * rate);
+                    paymentDisplay = `
+                        <button class="add-payment-btn" data-doc-id="${b.id}" data-farmer-name="${b.name}" data-suggested-amount="${estAmount}">
+                            💳 Pay ₹${estAmount.toLocaleString('en-IN')}
+                        </button>
+                    `;
+                } else {
+                    paymentDisplay = `<span class="pay-badge unpaid">Pending Weighing</span>`;
+                }
+
+                const currentStatus = b.status || 'pending';
+
+                row.innerHTML = `
+                    <td><strong>${b.name}</strong><br><small style="color:var(--muted); font-weight:bold;">${b.trackingId || ''}</small></td>
+                    <td>${b.crop || 'Wheat'}</td>
+                    <td>${b.date}</td>
+                    <td><span class="status-badge ${currentStatus}" id="badge-${b.id}">${currentStatus}</span></td>
+                    <td>${weighingDisplay}</td>
+                    <td>${paymentDisplay}</td>
+                    <td>
+                        <select class="status-select-btn" data-doc-id="${b.id}">
+                            <option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⏳ Pending</option>
+                            <option value="verified" ${currentStatus === 'verified' ? 'selected' : ''}>✅ Verified</option>
+                            <option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>🎉 Completed</option>
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Error loading dashboard:", error);
+        }
+    }
+
+    // Status Update Listener
+    document.getElementById('bookingsTableBody').addEventListener('change', async function(e) {
+        if (e.target.classList.contains('status-select-btn')) {
+            const docId = e.target.getAttribute('data-doc-id');
+            const newStatus = e.target.value;
+
+            try {
+                const bookingRef = doc(db, "bookings", docId);
+                await updateDoc(bookingRef, {
+                    status: newStatus,
+                    statusUpdatedAt: new Date().toISOString(),
+                    updatedByAdmin: currentAdminData.name || "Licensed Admin"
+                });
+
+                const badge = document.getElementById(`badge-${docId}`);
+                if (badge) {
+                    badge.className = `status-badge ${newStatus}`;
+                    badge.textContent = newStatus;
+                }
+
+                alert(`✅ Status updated to "${newStatus.toUpperCase()}"!`);
+                loadDashboard(currentAdminData.uid);
+            } catch (err) {
+                console.error("Error updating status:", err);
+                alert("Failed to update status.");
+            }
+        }
+    });
+
+    // Weighing & Payment Handler
+    document.getElementById('bookingsTableBody').addEventListener('click', async function(e) {
+        if (e.target.classList.contains('add-weighing-btn')) {
+            const docId = e.target.getAttribute('data-doc-id');
+            const farmerPhone = e.target.getAttribute('data-farmer-phone');
+            const farmerName = e.target.getAttribute('data-farmer-name');
+
+            const inputQuantity = prompt(`Enter weighed quantity for ${farmerName} (in quintals):\n[Season Quota Limit: ${MAX_SEASON_LIMIT_QTL} qtl]`);
+
+            if (inputQuantity === null || inputQuantity.trim() === "" || isNaN(inputQuantity)) {
+                if (inputQuantity !== null) alert("Please enter a valid numeric value.");
+                return;
+            }
+
+            const currentQty = Number(inputQuantity);
+            if (currentQty <= 0) {
+                alert("Quantity must be greater than 0.");
+                return;
+            }
+
+            try {
+                let totalSoldSoFar = 0;
+                if (farmerPhone) {
+                    const farmerAllBookingsQuery = query(
+                        collection(db, "bookings"),
+                        where("phone", "==", farmerPhone)
+                    );
+                    const farmerDocs = await getDocs(farmerAllBookingsQuery);
+                    farmerDocs.forEach(d => {
+                        const data = d.data();
+                        if (d.id !== docId && data.weighingRecord && data.weighingRecord.quantity) {
+                            totalSoldSoFar += Number(data.weighingRecord.quantity);
+                        }
+                    });
+                }
+
+                if ((totalSoldSoFar + currentQty) > MAX_SEASON_LIMIT_QTL) {
+                    alert(`❌ Season Quota Limit Exceeded!\n\nFarmer: ${farmerName}\nAlready Sold: ${totalSoldSoFar} qtl\nAttempted Entry: ${currentQty} qtl\nMax Allowed: ${MAX_SEASON_LIMIT_QTL} qtl\n\nRemaining Available Quota: ${Math.max(0, MAX_SEASON_LIMIT_QTL - totalSoldSoFar)} qtl.`);
+                    return;
+                }
+
+                const bookingRef = doc(db, "bookings", docId);
+                await updateDoc(bookingRef, {
+                    status: "verified",
+                    verifiedByAdmin: currentAdminData.name || "Licensed Admin",
+                    adminCentreId: currentAdminData.centreId || "ALL",
+                    weighingRecord: {
+                        quantity: currentQty,
+                        weighedAt: new Date().toISOString(),
+                        officerLicense: currentAdminData.licenseNumber || "N/A"
+                    }
+                });
+
+                alert(`✅ Weighing record saved!\n${currentQty} quintals recorded for ${farmerName}.`);
+                loadDashboard(currentAdminData.uid);
+            } catch (error) {
+                console.error("Error saving weighing record:", error);
+                alert("Failed to save weighing record.");
+            }
+        }
+
+        // Record Payment Handler
+        if (e.target.classList.contains('add-payment-btn')) {
+            const docId = e.target.getAttribute('data-doc-id');
+            const farmerName = e.target.getAttribute('data-farmer-name');
+            const suggestedAmount = e.target.getAttribute('data-suggested-amount');
+
+            const enteredAmount = prompt(`Confirm / Enter Payment Payout for ${farmerName} (₹):`, suggestedAmount);
+            if (enteredAmount === null || isNaN(enteredAmount) || Number(enteredAmount) <= 0) {
+                if (enteredAmount !== null) alert("Please enter a valid payout amount.");
+                return;
+            }
+
+            const utrRef = prompt(`Enter Transaction Reference / UTR ID:`) || 'DBT-GOV-PAY';
+
+            try {
+                const bookingRef = doc(db, "bookings", docId);
+                await updateDoc(bookingRef, {
+                    status: "completed",
+                    paymentRecord: {
+                        amount: Number(enteredAmount),
+                        utr: utrRef,
+                        status: "paid",
+                        paidAt: new Date().toISOString(),
+                        officerName: currentAdminData.name || "Licensed Admin"
+                    }
+                });
+
+                alert(`✅ Payment of ₹${Number(enteredAmount).toLocaleString('en-IN')} recorded successfully!\nStatus marked as COMPLETED.`);
+                loadDashboard(currentAdminData.uid);
+            } catch (err) {
+                console.error("Payment error:", err);
+                alert("Failed to record payment.");
+            }
+        }
+    });
+</script>
+<script type="module" src="./authUI.js"></script>
+<script type="module">
+    import { initKisanChatbot } from "./chatbot.js";
+    initKisanChatbot();
+</script>
+</body>
+</html>
